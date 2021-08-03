@@ -1,8 +1,8 @@
-# Uniswap V2 Subgraph
+# DCTDAO Subgraph
 
-[Uniswap](https://uniswap.org/) is a decentralized protocol for automated token exchange on Ethereum.
+[DCTDAO](https://dctdao.org/) is a decentralized protocol for automated token exchange on Avalanche.
 
-This subgraph dynamically tracks any pair created by the uniswap factory. It tracks of the current state of Uniswap contracts, and contains derived stats for things like historical data and USD prices.
+This subgraph dynamically tracks any pair created by the dctdao factory. It tracks of the current state of DCTDAO contracts, and contains derived stats for things like historical data and USD prices.
 
 - aggregated data across pairs and tokens,
 - data on individual pairs and tokens,
@@ -16,13 +16,13 @@ Make sure to update package.json settings to point to your own graph account.
 
 ## Queries
 
-Below are a few ways to show how to query the uniswap-subgraph for data. The queries show most of the information that is queryable, but there are many other filtering options that can be used, just check out the [querying api](https://thegraph.com/docs/graphql-api). These queries can be used locally or in The Graph Explorer playground.
+Below are a few ways to show how to query the dctdao-subgraph for data. The queries show most of the information that is queryable, but there are many other filtering options that can be used, just check out the [querying api](https://thegraph.com/docs/graphql-api). These queries can be used locally or in The Graph Explorer playground.
 
 ## Key Entity Overviews
 
-#### UniswapFactory
+#### DCTDAOFactory
 
-Contains data across all of Uniswap V2. This entity tracks important things like total liquidity (in ETH and USD, see below), all time volume, transaction count, number of pairs and more.
+Contains data across all of DCTDAO. This entity tracks important things like total liquidity (in AVAX, DWETH and DUSD, see below), all time volume, transaction count, number of pairs and more.
 
 #### Token
 
@@ -34,7 +34,7 @@ Contains data on a specific pair.
 
 #### Transaction
 
-Every transaction on Uniswap is stored. Each transaction contains an array of mints, burns, and swaps that occured within it.
+Every transaction on DCTDAO is stored. Each transaction contains an array of mints, burns, and swaps that occured within it.
 
 #### Mint, Burn, Swap
 
@@ -48,7 +48,7 @@ This query fetches aggredated data from all uniswap pairs and tokens, to give a 
 
 ```graphql
 {
-  uniswapFactories(first: 1) {
+  dctdaoFactories(first: 1) {
     pairCount
     totalVolumeUSD
     totalLiquidityUSD
