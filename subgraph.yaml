@@ -1,16 +1,16 @@
 specVersion: 0.0.2
-description: Uniswap is a decentralized protocol for automated token exchange on Ethereum.
-repository: https://github.com/Uniswap/uniswap-v2-subgraph
+description: DCTDAO is a decentralized protocol for automated token exchange on Avalanche.
+repository: https://github.com/DCTDAO/dctdao-subgraph
 schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum/contract
     name: Factory
-    network: mainnet
+    network: avalanche
     source:
-      address: '0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f'
+      address: '0xFBA564939397e71c75c9CbB29E6E23b89e4272BE'
       abi: Factory
-      startBlock: 10000834
+      startBlock: 1357930
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.3
@@ -21,7 +21,7 @@ dataSources:
         - Token
       abis:
         - name: Factory
-          file: ./abis/factory.json
+          file: ./abis/UniswapV2Factory.json
         - name: ERC20
           file: ./abis/ERC20.json
         - name: ERC20SymbolBytes
@@ -34,7 +34,7 @@ dataSources:
 templates:
   - kind: ethereum/contract
     name: Pair
-    network: rinkeby
+    network: avalanche
     source:
       abi: Pair
     mapping:
@@ -47,9 +47,9 @@ templates:
         - Token
       abis:
         - name: Pair
-          file: ./abis/pair.json
+          file: ./abis/UniswapV2Pair.json
         - name: Factory
-          file: ./abis/factory.json
+          file: ./abis/UniswapV2Factory.json
       eventHandlers:
         - event: Mint(indexed address,uint256,uint256)
           handler: handleMint

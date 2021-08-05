@@ -2,9 +2,9 @@
 import { Pair, Token, Bundle } from '../types/schema'
 import { BigDecimal, Address, BigInt } from '@graphprotocol/graph-ts/index'
 import { ZERO_BD, factoryContract, ADDRESS_ZERO, ONE_BD, UNTRACKED_PAIRS } from './helpers'
-
-const DCTD_ADDRESS = '0x8Db2dBdFB50480FE79F6576deAA4f6E68DcBfb15'
-const DUSDT_DCTD_PAIR = '0x05ff108F9A204D9abE22d0b435e6503E3222d534' 
+//Addresses need to be in lowercase!!!!!!!!!!!!!
+const DCTD_ADDRESS = '0x8db2dbdfb50480fe79f6576deaa4f6e68dcbfb15'
+const DUSDT_DCTD_PAIR = '0x05ff108f9a204d9abe22d0b435e6503e3222d534' 
 
 export function getDctdPriceInUSD(): BigDecimal {
   // fetch dctd prices for each stablecoin
@@ -18,15 +18,16 @@ export function getDctdPriceInUSD(): BigDecimal {
 }
 
 // token where amounts should contribute to tracked volume and liquidity
+//Addresses need to be in lowercase!!!!!!!!!!!!!
 let WHITELIST: string[] = [
-  '0x8Db2dBdFB50480FE79F6576deAA4f6E68DcBfb15', // DCTD
-  '0xbF61c387c9A9535140eCC572eeB22C7aa3FcF7A9', // DWETH
-  '0x017801B52F3e40178C75C4B4f19f1a0c8F8A0b78', //DUSDT
-  '0xf20d962a6c8f70c731bd838a3a388D7d48fA6e15', // ETH
-  '0xde3A24028580884448a5397872046a019649b084', //USDT
-  '0x846D50248BAf8b7ceAA9d9B53BFd12d7D7FBB25a', // VSO
-  '0xae9d2385Ff2E2951Dd4fA061e74c4d3deDD24347', // TOK
-  '0x85da29F4F8a59C2A1d0353da57c57edFB3A17F0b' //SPDR
+  DCTD_ADDRESS, // DCTD
+  '0xbf61c387c9a9535140ecc572eeb22c7aa3fcf7a9', // DWETH
+  '0x017801b52f3e40178c75c4b4f19f1a0c8f8a0b78', //DUSDT
+  '0xf20d962a6c8f70c731bd838a3a388d7d48fa6e15', // ETH
+  '0xde3a24028580884448a5397872046a019649b084', //USDT
+  '0x846d50248baf8b7ceaa9d9b53bfd12d7d7fbb25a', // VSO
+  '0xae9d2385ff2e2951dd4fa061e74c4d3dedd24347', // TOK
+  '0x85da29f4f8a59c2a1d0353da57c57edfb3a17f0b' //SPDR
 ]
 
 // minimum liquidity required to count towards tracked volume for pairs with small # of Lps
