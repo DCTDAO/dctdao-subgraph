@@ -11,7 +11,7 @@ export function getDctdPriceInUSD(): BigDecimal {
   let dusdtPair = Pair.load(DUSDT_DCTD_PAIR) // usdt is token1
 
   if (dusdtPair !== null) {
-    return dusdtPair.token1Price
+    return dusdtPair.token0Price
   } else {
     return ZERO_BD
   }
@@ -34,7 +34,7 @@ let WHITELIST: string[] = [
 let MINIMUM_USD_THRESHOLD_NEW_PAIRS = BigDecimal.fromString('30000')
 
 // minimum liquidity for price to get tracked
-let MINIMUM_LIQUIDITY_THRESHOLD_DCTD = BigDecimal.fromString('4500')
+let MINIMUM_LIQUIDITY_THRESHOLD_DCTD = BigDecimal.fromString('1500')
 
 /**
  * Search through graph to find derived Eth per token.

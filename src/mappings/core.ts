@@ -3,7 +3,7 @@ import { BigInt, BigDecimal, store, Address } from '@graphprotocol/graph-ts'
 import {
   Pair,
   Token,
-  UniswapFactory,
+  DctdaoFactory,
   Transaction,
   Mint as MintEvent,
   Burn as BurnEvent,
@@ -11,7 +11,7 @@ import {
   Bundle
 } from '../types/schema'
 import { Pair as PairContract, Mint, Burn, Swap, Transfer, Sync } from '../types/templates/Pair/Pair'
-import { updatePairDayData, updateTokenDayData, updateUniswapDayData, updatePairHourData } from './dayUpdates'
+import { updatePairDayData, updateTokenDayData, updateDctdaoDayData, updatePairHourData } from './dayUpdates'
 import { getDctdPriceInUSD, findDctdPerToken, getTrackedVolumeUSD, getTrackedLiquidityUSD } from './pricing'
 import {
   convertTokenToDecimal,
@@ -35,7 +35,7 @@ export function handleTransfer(event: Transfer): void {
     return
   }
 
-  let factory = UniswapFactory.load(FACTORY_ADDRESS)
+  let factory = DctdaoFactory.load(FACTORY_ADDRESS)
   let transactionHash = event.transaction.hash.toHexString()
 
   // user stats
@@ -214,10 +214,10 @@ export function handleSync(event: Sync): void {
   let pair = Pair.load(event.address.toHex())
   let token0 = Token.load(pair.token0)
   let token1 = Token.load(pair.token1)
-  let uniswap = UniswapFactory.load(FACTORY_ADDRESS)
+  let dctdao = DctdaoFactory.load(FACTORY_ADDRESS)
 
   // reset factory liquidity by subtracting onluy tarcked liquidity
-  uniswap.totalLiquidityDCTD = uniswap.totalLiquidityDCTD.minus(pair.trackedReserveDCTD as BigDecimal)
+  dctdao.totalLiquidityDCTD = dctdao.totalLiquidityDCTD.minus(pair.trackedReserveDCTD as BigDecimal)
 
   // reset token total liquidity amounts
   token0.totalLiquidity = token0.totalLiquidity.minus(pair.reserve0)
@@ -261,8 +261,8 @@ export function handleSync(event: Sync): void {
   pair.reserveUSD = pair.reserveDCTD.times(bundle.dctdPrice)
 
   // use tracked amounts globally
-  uniswap.totalLiquidityDCTD = uniswap.totalLiquidityDCTD.plus(trackedLiquidityDCTD)
-  uniswap.totalLiquidityUSD = uniswap.totalLiquidityDCTD.times(bundle.dctdPrice)
+  dctdao.totalLiquidityDCTD = dctdao.totalLiquidityDCTD.plus(trackedLiquidityDCTD)
+  dctdao.totalLiquidityUSD = dctdao.totalLiquidityDCTD.times(bundle.dctdPrice)
 
   // now correctly set liquidity amounts for each token
   token0.totalLiquidity = token0.totalLiquidity.plus(pair.reserve0)
@@ -270,7 +270,7 @@ export function handleSync(event: Sync): void {
 
   // save entities
   pair.save()
-  uniswap.save()
+  dctdao.save()
   token0.save()
   token1.save()
 }
@@ -281,7 +281,7 @@ export function handleMint(event: Mint): void {
   let mint = MintEvent.load(mints[mints.length - 1])
 
   let pair = Pair.load(event.address.toHex())
-  let uniswap = UniswapFactory.load(FACTORY_ADDRESS)
+  let dctdao = DctdaoFactory.load(FACTORY_ADDRESS)
 
   let token0 = Token.load(pair.token0)
   let token1 = Token.load(pair.token1)
@@ -303,13 +303,13 @@ export function handleMint(event: Mint): void {
 
   // update txn counts
   pair.txCount = pair.txCount.plus(ONE_BI)
-  uniswap.txCount = uniswap.txCount.plus(ONE_BI)
+  dctdao.txCount = dctdao.txCount.plus(ONE_BI)
 
   // save entities
   token0.save()
   token1.save()
   pair.save()
-  uniswap.save()
+  dctdao.save()
 
   mint.sender = event.params.sender
   mint.amount0 = token0Amount as BigDecimal
@@ -325,7 +325,7 @@ export function handleMint(event: Mint): void {
   // update day entities
   updatePairDayData(event)
   updatePairHourData(event)
-  updateUniswapDayData(event)
+  updateDctdaoDayData(event)
   updateTokenDayData(token0 as Token, event)
   updateTokenDayData(token1 as Token, event)
 }
@@ -342,7 +342,7 @@ export function handleBurn(event: Burn): void {
   let burn = BurnEvent.load(burns[burns.length - 1])
 
   let pair = Pair.load(event.address.toHex())
-  let uniswap = UniswapFactory.load(FACTORY_ADDRESS)
+  let dctdao = DctdaoFactory.load(FACTORY_ADDRESS)
 
   //update token info
   let token0 = Token.load(pair.token0)
@@ -362,14 +362,14 @@ export function handleBurn(event: Burn): void {
     .times(bundle.dctdPrice)
 
   // update txn counts
-  uniswap.txCount = uniswap.txCount.plus(ONE_BI)
+  dctdao.txCount = dctdao.txCount.plus(ONE_BI)
   pair.txCount = pair.txCount.plus(ONE_BI)
 
   // update global counter and save
   token0.save()
   token1.save()
   pair.save()
-  uniswap.save()
+  dctdao.save()
 
   // update burn
   // burn.sender = event.params.sender
@@ -387,7 +387,7 @@ export function handleBurn(event: Burn): void {
   // update day entities
   updatePairDayData(event)
   updatePairHourData(event)
-  updateUniswapDayData(event)
+  updateDctdaoDayData(event)
   updateTokenDayData(token0 as Token, event)
   updateTokenDayData(token1 as Token, event)
 }
@@ -448,17 +448,17 @@ export function handleSwap(event: Swap): void {
   pair.save()
 
   // update global values, only used tracked amounts for volume
-  let uniswap = UniswapFactory.load(FACTORY_ADDRESS)
-  uniswap.totalVolumeUSD = uniswap.totalVolumeUSD.plus(trackedAmountUSD)
-  uniswap.totalVolumeDCTD = uniswap.totalVolumeDCTD.plus(trackedAmountDCTD)
-  uniswap.untrackedVolumeUSD = uniswap.untrackedVolumeUSD.plus(derivedAmountUSD)
-  uniswap.txCount = uniswap.txCount.plus(ONE_BI)
+  let dctdao = DctdaoFactory.load(FACTORY_ADDRESS)
+  dctdao.totalVolumeUSD = dctdao.totalVolumeUSD.plus(trackedAmountUSD)
+  dctdao.totalVolumeDCTD = dctdao.totalVolumeDCTD.plus(trackedAmountDCTD)
+  dctdao.untrackedVolumeUSD = dctdao.untrackedVolumeUSD.plus(derivedAmountUSD)
+  dctdao.txCount = dctdao.txCount.plus(ONE_BI)
 
   // save entities
   pair.save()
   token0.save()
   token1.save()
-  uniswap.save()
+  dctdao.save()
 
   let transaction = Transaction.load(event.transaction.hash.toHexString())
   if (transaction === null) {
@@ -505,15 +505,15 @@ export function handleSwap(event: Swap): void {
   // update day entities
   let pairDayData = updatePairDayData(event)
   let pairHourData = updatePairHourData(event)
-  let uniswapDayData = updateUniswapDayData(event)
+  let dctdaoDayData = updateDctdaoDayData(event)
   let token0DayData = updateTokenDayData(token0 as Token, event)
   let token1DayData = updateTokenDayData(token1 as Token, event)
 
   // swap specific updating
-  uniswapDayData.dailyVolumeUSD = uniswapDayData.dailyVolumeUSD.plus(trackedAmountUSD)
-  uniswapDayData.dailyVolumeDCTD = uniswapDayData.dailyVolumeDCTD.plus(trackedAmountDCTD)
-  uniswapDayData.dailyVolumeUntracked = uniswapDayData.dailyVolumeUntracked.plus(derivedAmountUSD)
-  uniswapDayData.save()
+  dctdaoDayData.dailyVolumeUSD = dctdaoDayData.dailyVolumeUSD.plus(trackedAmountUSD)
+  dctdaoDayData.dailyVolumeDCTD = dctdaoDayData.dailyVolumeDCTD.plus(trackedAmountDCTD)
+  dctdaoDayData.dailyVolumeUntracked = dctdaoDayData.dailyVolumeUntracked.plus(derivedAmountUSD)
+  dctdaoDayData.save()
 
   // swap specific updating for pair
   pairDayData.dailyVolumeToken0 = pairDayData.dailyVolumeToken0.plus(amount0Total)

@@ -1,31 +1,31 @@
 /* eslint-disable prefer-const */
 import { BigDecimal, BigInt, EthereumEvent } from '@graphprotocol/graph-ts'
-import { Bundle, Pair, PairDayData, Token, TokenDayData, UniswapDayData, UniswapFactory } from '../types/schema'
+import { Bundle, Pair, PairDayData, Token, TokenDayData, DctdaoDayData, DctdaoFactory } from '../types/schema'
 import { PairHourData } from './../types/schema'
 import { FACTORY_ADDRESS, ONE_BI, ZERO_BD, ZERO_BI } from './helpers'
 
-export function updateUniswapDayData(event: EthereumEvent): UniswapDayData {
-  let uniswap = UniswapFactory.load(FACTORY_ADDRESS)
+export function updateDctdaoDayData(event: EthereumEvent): DctdaoDayData {
+  let dctdao = DctdaoFactory.load(FACTORY_ADDRESS)
   let timestamp = event.block.timestamp.toI32()
   let dayID = timestamp / 86400
   let dayStartTimestamp = dayID * 86400
-  let uniswapDayData = UniswapDayData.load(dayID.toString())
-  if (uniswapDayData === null) {
-    uniswapDayData = new UniswapDayData(dayID.toString())
-    uniswapDayData.date = dayStartTimestamp
-    uniswapDayData.dailyVolumeUSD = ZERO_BD
-    uniswapDayData.dailyVolumeDCTD = ZERO_BD
-    uniswapDayData.totalVolumeUSD = ZERO_BD
-    uniswapDayData.totalVolumeDCTD = ZERO_BD
-    uniswapDayData.dailyVolumeUntracked = ZERO_BD
+  let dctdaoDayData = DctdaoDayData.load(dayID.toString())
+  if (dctdaoDayData === null) {
+    dctdaoDayData = new DctdaoDayData(dayID.toString())
+    dctdaoDayData.date = dayStartTimestamp
+    dctdaoDayData.dailyVolumeUSD = ZERO_BD
+    dctdaoDayData.dailyVolumeDCTD = ZERO_BD
+    dctdaoDayData.totalVolumeUSD = ZERO_BD
+    dctdaoDayData.totalVolumeDCTD = ZERO_BD
+    dctdaoDayData.dailyVolumeUntracked = ZERO_BD
   }
 
-  uniswapDayData.totalLiquidityUSD = uniswap.totalLiquidityUSD
-  uniswapDayData.totalLiquidityDCTD = uniswap.totalLiquidityDCTD
-  uniswapDayData.txCount = uniswap.txCount
-  uniswapDayData.save()
+  dctdaoDayData.totalLiquidityUSD = dctdao.totalLiquidityUSD
+  dctdaoDayData.totalLiquidityDCTD = dctdao.totalLiquidityDCTD
+  dctdaoDayData.txCount = dctdao.txCount
+  dctdaoDayData.save()
 
-  return uniswapDayData as UniswapDayData
+  return dctdaoDayData as DctdaoDayData
 }
 
 export function updatePairDayData(event: EthereumEvent): PairDayData {
